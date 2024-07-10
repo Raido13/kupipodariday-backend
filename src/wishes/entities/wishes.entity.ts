@@ -71,7 +71,7 @@ export class Wish {
   @Min(0)
   price: number;
 
-  @Column({ nullable: true })
+  @Column({ default: 0, nullable: true })
   raised: number;
 
   @ManyToOne(() => User, (user) => user.wishes)

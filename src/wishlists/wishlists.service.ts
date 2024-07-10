@@ -30,26 +30,26 @@ export class WishlistsService {
   ): Promise<Wishlist> {
     const user = await this.userRepository.findOneBy({ id: userId });
     const items = await this.wishRepository.findBy({
-      id: In(createWishlistDto.itemIds),
+      id: In(createWishlistDto.itemsId),
     });
-
+    
     const newWishlist = {
       ...createWishlistDto,
       owner: UserPublicResponseDto.getUser(user),
       items,
     };
-
-    delete newWishlist.itemIds;
+    
+    delete newWishlist.itemsId;
     return this.create(newWishlist);
   }
 
   async findOne(id: number, userId: number): Promise<PublicWishlistDto> {
     const wishlist = await this.wishRepository.findOne({
       where: { id },
-      relations: ['owner', 'items'],
+      relations: ['owner'],
     });
-
-    if (wishlist.owner.id !== userId) {
+    
+    if (wishlist.owner.id !== +userId) {
       throw new UnauthorizedException(
         'Нельзя получить доступ к чужому вишлисту',
       );
@@ -94,7 +94,7 @@ export class WishlistsService {
     }
 
     const items = await this.wishRepository.findBy({
-      id: In(updateWishlistDto.itemIds),
+      id: In(updateWishlistDto.itemsId),
     });
 
     const newWishlist = {
@@ -105,7 +105,7 @@ export class WishlistsService {
       items,
     };
 
-    delete newWishlist.itemIds;
+    delete newWishlist.itemsId;
     return this.wishlistRepository.save(newWishlist);
   }
 

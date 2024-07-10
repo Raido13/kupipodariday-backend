@@ -46,7 +46,7 @@ export class Wishlist {
   @MaxLength(250)
   name: string;
 
-  @Column()
+  @Column({ nullable: true })
   @IsString()
   @MaxLength(1500)
   description: string;
