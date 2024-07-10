@@ -21,7 +21,7 @@ export class WishesService {
     const newWish = this.wishesRepository.create({
       ...wish,
       owner: user,
-      raised: 0
+      raised: 0,
     });
     return this.wishesRepository.save(newWish);
   }

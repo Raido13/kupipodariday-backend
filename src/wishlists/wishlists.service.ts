@@ -32,13 +32,13 @@ export class WishlistsService {
     const items = await this.wishRepository.findBy({
       id: In(createWishlistDto.itemsId),
     });
-    
+
     const newWishlist = {
       ...createWishlistDto,
       owner: UserPublicResponseDto.getUser(user),
       items,
     };
-    
+
     delete newWishlist.itemsId;
     return this.create(newWishlist);
   }
@@ -48,7 +48,7 @@ export class WishlistsService {
       where: { id },
       relations: ['owner'],
     });
-    
+
     if (wishlist.owner.id !== +userId) {
       throw new UnauthorizedException(
         'Нельзя получить доступ к чужому вишлисту',

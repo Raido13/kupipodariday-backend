@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { ForbiddenException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './entities/users.entity';
 import { Repository } from 'typeorm';
@@ -20,9 +20,20 @@ export class UsersService {
   ) {}
 
   async create(createUserDto: CreateUserDto): Promise<User> {
-    const { password, ...rest } = createUserDto;
+    const { password, email, username, ...rest } = createUserDto;
+
+    if (await this.usersRepository.findOne({ where: { username } })) {
+      throw new ForbiddenException('Юзер с таким ником уже существует');
+    }
+
+    if (await this.usersRepository.findOne({ where: { email } })) {
+      throw new ForbiddenException('Такой email уже существует');
+    }
+
     const user = this.usersRepository.create({
       ...rest,
+      email,
+      username,
       password: await hashPassword(password),
     });
 
@@ -60,7 +71,24 @@ export class UsersService {
   }
 
   async update(id: number, user: UpdateUserDto) {
-    const { password, ...rest } = user;
+    const { password, username, email, ...rest } = user;
+
+    const existingUserByUsername = await this.usersRepository.findOne({
+      where: { username },
+    });
+
+    if (existingUserByUsername && existingUserByUsername.id !== id) {
+      throw new ForbiddenException('Юзер с таким ником уже существует');
+    }
+
+    const existingUserByEmail = await this.usersRepository.findOne({
+      where: { email },
+    });
+
+    if (existingUserByEmail && existingUserByEmail.id !== id) {
+      throw new ForbiddenException('Такой email уже существует');
+    }
+
     if (password) {
       return this.usersRepository.update(id, {
         ...rest,
